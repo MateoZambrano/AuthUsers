@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("api/authUser")
+@RequestMapping("api/authUsers")
 public class AuthUsersController {
     @Autowired
     private AuthUsersRepository authUsersRepository;
