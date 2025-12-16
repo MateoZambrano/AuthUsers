@@ -3,7 +3,9 @@ package com.DS3.AUTH.controller;
 import com.DS3.AUTH.entity.AuthUsers;
 import com.DS3.AUTH.repository.AuthUsersRepository;
 import com.DS3.AUTH.service.AuthUsersService;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,14 +18,16 @@ public class AuthUsersController {
     private final AuthUsersRepository authUsersRepository;
     private final AuthUsersService authUsersService;
 
-     @GetMapping
+    @GetMapping
     public List<AuthUsers> getAll(){
-        return authUsersRepository.findAll();
+         return authUsersRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public AuthUsers getById(@PathVariable Long id){
-        return authUsersRepository.findById(id).orElse(null);
+    @GetMapping("/me")
+    public AuthUsers getCurrentUser() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();   // viene del JWT (subject)
+        return authUsersRepository.findByEmail(email);
     }
 
     @PostMapping
@@ -46,5 +50,10 @@ public class AuthUsersController {
     @PostMapping("/login")
     public String login(@RequestBody AuthUsers request) {
         return authUsersService.login(request.getEmail(), request.getPassword());
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id){
+        authUsersRepository.deleteById(id);
     }
 }
